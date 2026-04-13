@@ -48,7 +48,7 @@ service cloud.firestore {
     function isAdmin() {
       return isAuthenticated() &&
         (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
-          (request.auth.token.email == "bellone@samsungi.org" && request.auth.token.email_verified == true));
+          (request.auth.token.email == "ehsheh@gmail.com" && request.auth.token.email_verified == true));
     }
     
     function hasOnlyAllowedFields(fields) {
@@ -140,8 +140,7 @@ service cloud.firestore {
     }
     
     match /posts/{postId} {
-      allow list: if true;
-      allow get: if isAuthenticated();
+      allow read: if isAuthenticated();
       
       allow create: if isAuthenticated() && isValidPost() && request.resource.data.viewCount == 0;
       

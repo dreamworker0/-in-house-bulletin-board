@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebase';
+import { getDocFromServer, doc } from 'firebase/firestore';
+import { auth, db } from './firebase';
 import { Auth } from './components/Auth';
 import { PostList } from './components/PostList';
 import { PostDetail } from './components/PostDetail';
@@ -16,6 +17,17 @@ function AppContent() {
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
 
   useEffect(() => {
+    const testConnection = async () => {
+      try {
+        await getDocFromServer(doc(db, 'test', 'connection'));
+      } catch (error) {
+        if(error instanceof Error && error.message.includes('the client is offline')) {
+          console.error("Please check your Firebase configuration. ");
+        }
+      }
+    };
+    testConnection();
+
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setAuthReady(true);
@@ -82,37 +94,32 @@ function AppContent() {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="animate-in fade-in duration-300">
-          {currentView === 'list' && <PostList onSelectPost={handleSelectPost} />}
-          
-          {!user && currentView !== 'list' && (
+          {!user ? (
             <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center max-w-2xl mx-auto mt-12">
               <Users size={48} className="mx-auto text-blue-500 mb-6" />
               <h2 className="text-2xl font-bold text-gray-900 mb-3">로그인이 필요합니다</h2>
               <p className="text-gray-600 mb-8 max-w-md mx-auto leading-relaxed">
-                게시글을 자세히 읽거나 작성, 수정, 삭제하려면 먼저 로그인해 주세요.
+                사내 게시판을 이용하려면 먼저 로그인해 주세요.
               </p>
               <div className="flex justify-center">
                 <Auth user={user} />
               </div>
-              <button 
-                onClick={handleBackToList}
-                className="mt-6 text-blue-600 hover:text-blue-800 font-medium"
-              >
-                목록으로 돌아가기
-              </button>
             </div>
-          )}
-
-          {user && currentView === 'detail' && selectedPost && (
-            <PostDetail 
-              postId={selectedPost.id} 
-              onBack={handleBackToList} 
-              onEdit={handleEditPost} 
-            />
-          )}
-          {user && currentView === 'create' && <CreatePost onBack={handleBackToList} />}
-          {user && currentView === 'edit' && selectedPost && (
-            <CreatePost onBack={handleBackToList} editPost={selectedPost} />
+          ) : (
+            <>
+              {currentView === 'list' && <PostList onSelectPost={handleSelectPost} />}
+              {currentView === 'detail' && selectedPost && (
+                <PostDetail 
+                  postId={selectedPost.id} 
+                  onBack={handleBackToList} 
+                  onEdit={handleEditPost} 
+                />
+              )}
+              {currentView === 'create' && <CreatePost onBack={handleBackToList} />}
+              {currentView === 'edit' && selectedPost && (
+                <CreatePost onBack={handleBackToList} editPost={selectedPost} />
+              )}
+            </>
           )}
         </div>
       </main>
