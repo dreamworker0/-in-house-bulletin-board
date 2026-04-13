@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "An employee using the bulletin board.",
+      "type": "object",
+      "properties": {
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "User's email address."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL to the user's profile photo."
+        },
+        "role": {
+          "type": "string",
+          "enum": ["admin", "employee"],
+          "description": "User's role in the system."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the user was created."
+        }
+      },
+      "required": ["email", "displayName", "role", "createdAt"]
+    },
+    "Post": {
+      "title": "Post",
+      "description": "A bulletin board post.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Title of the post."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content of the post."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "UID of the author."
+        },
+        "authorName": {
+          "type": "string",
+          "description": "Display name of the author."
+        },
+        "authorPhoto": {
+          "type": "string",
+          "format": "uri",
+          "description": "Photo URL of the author."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Creation timestamp."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last update timestamp."
+        },
+        "viewCount": {
+          "type": "number",
+          "description": "Number of times the post has been viewed."
+        }
+      },
+      "required": ["title", "content", "authorId", "authorName", "createdAt", "updatedAt", "viewCount"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/User"
+      },
+      "description": "Stores user profiles."
+    },
+    "/posts/{postId}": {
+      "schema": {
+        "$ref": "#/entities/Post"
+      },
+      "description": "Stores bulletin board posts."
+    }
+  }
+}
